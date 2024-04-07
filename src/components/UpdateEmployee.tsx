@@ -1,32 +1,45 @@
 import { useNavigate } from "react-router-dom";
-import { createEmployee } from "../services/axiosWrapper";
+import { createEmployee, queryRequest } from "../services/axiosWrapper";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Box, Button, Grid, TextField } from "@mui/material";
-import UserAccount from "./UserAccount";
+import { Box, Button, Grid, MenuItem, TextField } from "@mui/material";
 import storage from "../utility/storage";
+import { useEffect, useState } from "react";
+import IUser from "../interfaces/User";
 
-const CreateEmployee = () => {
+const UpdateEmployee = () => {
+  const [user, setUser] = useState<IUser[]>([]);
   const token = storage.getToken();
   const object = JSON.parse(atob(token.split(".")[1]));
+
   // console.log(object);
   // const role_id = object.role_id;
   const curr_user_id = object.id;
+
+  const getAllUsers = async () => {
+    try {
+      const data = await queryRequest(`/getAllEmployees`);
+      setUser(data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getAllUsers();
+  }, []);
+
   const createuser = async (values: {}) => {
     try {
       console.log("in try");
       await createEmployee(values);
-      // if (formik.values.role_id === 1) {
-        navigate(`/account/${curr_user_id}`);
-      //   // <UserAccount user_id={formik.values.id}/>
-      // } else if (formik.values.role_id === 0) {
-      //   <UserAccount user_id={formik.values.id}/>
-      // }
+      navigate(`/account/${curr_user_id}`);
     } catch (error) {
       console.log("in catch");
       console.log(error);
     }
   };
+
   const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
@@ -73,13 +86,7 @@ const CreateEmployee = () => {
     }),
     onSubmit: (values) => {
       console.log(values);
-      createuser(values);
-
-      // values.date_of_birth.toString();
-      // values.date_of_joining.toString();
-      // console.log("aftre");
-      // console.log(values);
-      // navigate(`/account/${values.id}`);
+      // createuser(values);
     },
   });
 
@@ -90,6 +97,7 @@ const CreateEmployee = () => {
           <Grid item xs={12} sm={6}>
             <TextField
               error={formik.touched.id && Boolean(formik.errors.id)}
+              select
               id="id"
               name="id"
               type="text"
@@ -102,11 +110,16 @@ const CreateEmployee = () => {
               helperText={
                 formik.touched.id && formik.errors.id ? formik.errors.id : ""
               }
-            />
+            >
+              {user.map((item)=>(
+                <MenuItem key={item.id} value={item.id}>{item.id}</MenuItem>
+              ))}
+            </TextField>
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               error={formik.touched.role_id && Boolean(formik.errors.role_id)}
+              select
               id="role_id"
               name="role_id"
               type="number"
@@ -121,7 +134,11 @@ const CreateEmployee = () => {
                   ? formik.errors.role_id
                   : ""
               }
-            />
+            >
+              <MenuItem value={0}>0</MenuItem>
+              <MenuItem value={1}>1</MenuItem>
+
+            </TextField>
           </Grid>
           <Grid item xs={12} sm={4}>
             <TextField
@@ -234,7 +251,7 @@ const CreateEmployee = () => {
               name="date_of_birth"
               type="text"
               label="Date of Birth"
-              InputLabelProps={{ shrink: true }} 
+              InputLabelProps={{ shrink: true }}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.date_of_birth}
@@ -257,7 +274,7 @@ const CreateEmployee = () => {
               name="date_of_joining"
               type="text"
               label="Date of Joining"
-              InputLabelProps={{ shrink: true }} 
+              InputLabelProps={{ shrink: true }}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               value={formik.values.date_of_joining}
@@ -443,4 +460,4 @@ const CreateEmployee = () => {
   );
 };
 
-export default CreateEmployee;
+export default UpdateEmployee;

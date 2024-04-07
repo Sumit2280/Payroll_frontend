@@ -1,6 +1,7 @@
 import { postRequest } from "../services/axiosWrapper";
 import storage from "../utility/storage";
 import { useNavigate } from "react-router-dom";
+import UserAccount from "./UserAccount";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -14,9 +15,16 @@ const Login = () => {
       };
       const response = await postRequest(user);
       const token = response.data.token;
-      storage.setToken(token);
+      storage.setToken(token);  
       const object = JSON.parse(atob(token.split('.')[1]))
-      navigate(`/account/${object.id}`);
+      console.log(object);
+      // if(object.role_id===1){
+        navigate(`/account/${object.id}`);
+      // }
+      // else if(object.role_id===0){
+        // <UserAccount user_id={object.id}/>
+        // navigate(`/userAccount/${object.id}`)
+      // }
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -55,7 +63,7 @@ const Login = () => {
 
       <div className="flex justify-center items-center mt-6 space-x-4">
         <button
-          className={`bg-primary-600 py-2 px-4 text-sm text-white rounded-lg focus:outline-none focus:border-primary-700`}
+          className={`bg-primary-600 py-2 px-4 text-sm text-black rounded-lg focus:outline-none focus:border-primary-700`}
         >
           Login
         </button>

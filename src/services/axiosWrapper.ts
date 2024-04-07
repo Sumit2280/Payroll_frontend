@@ -1,4 +1,5 @@
 import axios from "axios";
+import storage from "../utility/storage";
 const axiosClient = axios.create({});
 axiosClient.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 // axiosClient.defaults.headers.common['Authorization']=AUTH_TOKEN;
@@ -61,7 +62,10 @@ const createPayroll =async (payload:{})=>{
   return await axiosClient({
     method: "POST",
     url: "/createPayroll",
-    data: payload
+    data: payload,
+    headers:{
+      'Authorization':`Bearer ${storage.getToken()}`,
+    }
   })
 }
 const queryRequest = async (query: string) => {
